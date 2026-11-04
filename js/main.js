@@ -1,13 +1,13 @@
 // Screens: home, call, feedback, history, settings.
-import { DAYS, FREE_SCENARIOS, getScenario } from './curriculum.js?v=202611042320';
-import { buildSystemPrompt, buildCustomScenario, weakPointsFrom } from './prompt.js?v=202611042320';
-import { nextDay, isDayDone, streakDays, localYmd, MIN_DONE_SEC } from './progress.js?v=202611042320';
-import { loadState, saveState, encodeSetup, decodeSetup } from './store.js?v=202611042320';
-import { AudioEngine } from './audio.js?v=202611042320';
-import { LiveSession, LIVE_MODELS, explainLiveError } from './live.js?v=202611042320';
-import { TranscriptBuilder } from './transcript.js?v=202611042320';
-import { makeFeedback, checkKey } from './feedback.js?v=202611042320';
-import { int16ToBase64 } from './pcm.js?v=202611042320';
+import { DAYS, FREE_SCENARIOS, getScenario } from './curriculum.js?v=202611042324';
+import { buildSystemPrompt, buildCustomScenario, weakPointsFrom } from './prompt.js?v=202611042324';
+import { nextDay, isDayDone, streakDays, localYmd, MIN_DONE_SEC } from './progress.js?v=202611042324';
+import { loadState, saveState, encodeSetup, decodeSetup } from './store.js?v=202611042324';
+import { AudioEngine } from './audio.js?v=202611042324';
+import { LiveSession, LIVE_MODELS, explainLiveError } from './live.js?v=202611042324';
+import { TranscriptBuilder } from './transcript.js?v=202611042324';
+import { makeFeedback, checkKey } from './feedback.js?v=202611042324';
+import { int16ToBase64 } from './pcm.js?v=202611042324';
 
 const app = document.getElementById('app');
 const QS = new URLSearchParams(location.search);
@@ -177,6 +177,7 @@ async function startCall(sc) {
   try {
     await audio.init(); // created inside the tap so iPhone allows sound
     await audio.startMic(FAKE_MIC);
+    if (audio.ctx.state !== 'running') await audio.ctx.resume().catch(() => {});
   } catch (e) {
     return failCall(micErrorText(e));
   }

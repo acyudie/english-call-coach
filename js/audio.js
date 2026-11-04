@@ -1,5 +1,5 @@
 // Microphone capture (16 kHz PCM chunks) and gapless playback of 24 kHz model audio.
-import { downsampleTo16k, floatTo16BitPCM, int16ToBase64, base64ToInt16, pcm16ToFloat32, rms } from './pcm.js?v=202611042320';
+import { downsampleTo16k, floatTo16BitPCM, int16ToBase64, base64ToInt16, pcm16ToFloat32, rms } from './pcm.js?v=202611042324';
 
 const CHUNK_SAMPLES = 1600; // 100 ms at 16 kHz
 
@@ -18,9 +18,15 @@ export class AudioEngine {
 
   // Must be called from a tap/click handler (iOS needs a user gesture).
   async init() {
+    // iPhone (Safari 17+): treat this as a call so the silent switch does not mute the AI voice.
+    try { if (navigator.audioSession) navigator.audioSession.type = 'play-and-record'; } catch { /* older Safari */ }
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'interactive' });
     if (this.ctx.state === 'suspended') await this.ctx.resume();
+    this.ctx.onstatechange = () => {
+      // iOS can pause audio when the mic starts or after an interruption; try to continue.
+      if (this.ctx && this.ctx.state !== 'running' && this.ctx.state !== 'closed') this.ctx.resume().catch(() => {});
+    };
     this.outAnalyser = this.ctx.createAnalyser();
     this.outAnalyser.fftSize = 512;
     this.outGain = this.ctx.createGain();
@@ -28,7 +34,7 @@ export class AudioEngine {
     this.outAnalyser.connect(this.outGain);
     this.outGain.connect(this.ctx.destination);
     this.levelBuf = new Float32Array(this.outAnalyser.fftSize);
-    await this.ctx.audioWorklet.addModule(new URL('./worklet-recorder.js?v=202611042320', import.meta.url));
+    await this.ctx.audioWorklet.addModule(new URL('./worklet-recorder.js?v=202611042324', import.meta.url));
   }
 
   async startMic(fake = false) {

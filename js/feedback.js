@@ -1,8 +1,8 @@
 // Calls a Gemini text model to turn the transcript into Korean coaching feedback.
 // Free-tier models are sometimes overloaded (503) or slow, so we race a strong model
 // against a light one and fall back through a list, each with a timeout.
-import { FEEDBACK_SCHEMA, normalizeFeedback } from './feedback-parse.js?v=202611042320';
-import { buildFeedbackPrompt } from './prompt.js?v=202611042320';
+import { FEEDBACK_SCHEMA, normalizeFeedback } from './feedback-parse.js?v=202611042324';
+import { buildFeedbackPrompt } from './prompt.js?v=202611042324';
 
 const PRIMARY = 'gemini-3.8-flash';
 const QUICK = 'gemini-3.5-flash-lite';
